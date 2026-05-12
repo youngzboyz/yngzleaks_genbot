@@ -1,5 +1,5 @@
-nextcord==2.6.0
+nextcord==2.6.1
 flask>=2.3.0
 gunicorn>=21.2.0
 audioop-lts>=0.2.2
-setuptools>=65.0.0
+setuptools==75.8.2
