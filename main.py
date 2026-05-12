@@ -17,7 +17,8 @@ print("""
 -------------------------------------------------------------
 """)
 
-free_gen_channel = 1238964613714808853, 1156430240038526990, 1156701943809454161, 1158976650311127081
+free_gen_channel = 1165365715423985744, 1165366426127826944
+
 keep_alive()
 
 free_cooldowns = {}
@@ -107,7 +108,8 @@ async def gen(inter, service):
                          ephemeral=True)
         return
 
-    allowed_channels = [1238964613714808853]
+    allowed_channels = [1165365715423985744, 1165366426127826944]
+
     if inter.channel.id not in allowed_channels:
         embed = nextcord.Embed(
             title="Wrong Channel!",
@@ -138,10 +140,21 @@ async def gen(inter, service):
         await inter.send(embed=embed, ephemeral=True)
         return
 
-    if user_id in gen_cooldowns and time.time(
-    ) - gen_cooldowns[user_id] < 1200:
-        cooldown_time = int(1200 - (time.time() - gen_cooldowns[user_id]))
+    # Cooldown: 20 min para usuarios que NO sean owner. (Si son owner: sin cooldown)
+    owner_role_name = "owner"
+    is_owner = False
+    try:
+        if inter.user is not None and getattr(inter.user, "roles", None):
+            is_owner = any((r.name or "").lower() == owner_role_name for r in inter.user.roles)
+    except Exception:
+        is_owner = False
+
+    cooldown_seconds = 0 if is_owner else 1200
+
+    if cooldown_seconds and user_id in gen_cooldowns and time.time() - gen_cooldowns[user_id] < cooldown_seconds:
+        cooldown_time = int(cooldown_seconds - (time.time() - gen_cooldowns[user_id]))
         minutes, seconds = divmod(cooldown_time, 60)
+
         await inter.send(
             f"You can use this command again in {minutes} minutes and {seconds} seconds.",
             ephemeral=True)
